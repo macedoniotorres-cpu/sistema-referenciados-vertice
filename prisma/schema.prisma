@@ -1,0 +1,187 @@
+
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// NextAuth.js models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  expires   DateTime
+  usado     Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("password_reset_tokens")
+}
+
+// Sistema de Referenciados
+model User {
+  id                String            @id @default(cuid())
+  email             String            @unique
+  name              String?
+  accounts          Account[]
+  sessions          Session[]
+  
+  // Campos específicos del sistema de referenciados
+  referenciador     Referenciador?
+  
+  @@map("users")
+}
+
+enum EstatusRegistro {
+  PENDIENTE
+  ACTIVO
+  RECHAZADO
+}
+
+enum EstatusCredito {
+  PENDIENTE
+  APROBADO
+  RECHAZADO
+  SIN_SOLICITUD
+}
+
+enum EstadoPago {
+  PENDIENTE
+  PAGADO
+}
+
+enum TipoUsuario {
+  ADMIN
+  REFERENCIADOR
+}
+
+model Referenciador {
+  id                    String            @id @default(cuid())
+  codigo                String            @unique
+  nombre                String
+  nss                   String
+  nacimiento            DateTime
+  fechaRegistro        DateTime          @default(now())
+  telefono             String
+  correo               String            @unique
+  password             String
+  aceptarPublicidad    Boolean           @default(false)
+  
+  // Estados del sistema
+  estatusRegistro      EstatusRegistro   @default(PENDIENTE)
+  estatusCredito       EstatusCredito    @default(SIN_SOLICITUD)
+  estadoIncentivo      EstadoPago        @default(PENDIENTE)
+  estadoComision       EstadoPago        @default(PENDIENTE)
+  
+  // Tipo de usuario
+  tipoUsuario          TipoUsuario       @default(REFERENCIADOR)
+  
+  // Relación de referenciados (sistema jerárquico)
+  referenciadorId      String?
+  referenciador        Referenciador?    @relation("ReferenciadorReferidos", fields: [referenciadorId], references: [id])
+  referidos            Referenciador[]   @relation("ReferenciadorReferidos")
+  
+  // Relaciones con User de NextAuth
+  userId               String            @unique
+  user                 User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Relaciones con otras entidades
+  solicitudesCredito   SolicitudCredito[]
+  incentivos           Incentivo[]
+  comisiones           Comision[]
+  
+  @@map("referenciadores")
+}
+
+model SolicitudCredito {
+  id                String            @id @default(cuid())
+  fechaSolicitud    DateTime          @default(now())
+  monto             Decimal           @db.Decimal(15, 2)
+  motivo            String
+  estatus           EstatusCredito    @default(PENDIENTE)
+  fechaAprobacion   DateTime?
+  fechaRechazo      DateTime?
+  comentarios       String?
+  
+  // Relación con referenciador
+  referenciadorId   String
+  referenciador     Referenciador     @relation(fields: [referenciadorId], references: [id])
+  
+  @@map("solicitudes_credito")
+}
+
+model Incentivo {
+  id                String            @id @default(cuid())
+  monto             Decimal           @db.Decimal(10, 2) @default(10.00)
+  fechaGeneracion   DateTime          @default(now())
+  estado            EstadoPago        @default(PENDIENTE)
+  fechaPago         DateTime?
+  
+  // Relación con referenciador que recibe el incentivo
+  referenciadorId   String
+  referenciador     Referenciador     @relation(fields: [referenciadorId], references: [id])
+  
+  // ID del referido que generó este incentivo
+  referidoId        String
+  
+  @@map("incentivos")
+}
+
+model Comision {
+  id                String            @id @default(cuid())
+  monto             Decimal           @db.Decimal(10, 2) @default(500.00)
+  fechaGeneracion   DateTime          @default(now())
+  estado            EstadoPago        @default(PENDIENTE)
+  fechaPago         DateTime?
+  
+  // Relación con referenciador que recibe la comisión
+  referenciadorId   String
+  referenciador     Referenciador     @relation(fields: [referenciadorId], references: [id])
+  
+  // ID de la solicitud de crédito que generó esta comisión
+  solicitudId       String
+  
+  @@map("comisiones")
+}
