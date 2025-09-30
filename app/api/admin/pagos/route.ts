@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     // Obtener información de los referidos para cada incentivo
     const incentivosConReferidos = await Promise.all(
-      incentivos.map(async (incentivo) => {
+      incentivos.map(async (incentivo: typeof incentivos[number]) => {
         const referido = await prisma.referenciador.findUnique({
           where: { id: incentivo.referidoId },
           select: {
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
 
     // Obtener información de las solicitudes de crédito para cada comisión
     const comisionesConSolicitudes = await Promise.all(
-      comisiones.map(async (comision) => {
+      comisiones.map(async (comision: typeof comisiones[number]) => {
         const solicitud = await prisma.solicitudCredito.findUnique({
           where: { id: comision.solicitudId },
           include: {
