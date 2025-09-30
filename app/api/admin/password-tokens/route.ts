@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       take: 10
     });
 
-    const tokensWithLinks = tokens.map(token => ({
+    const tokensWithLinks = tokens.map((token: typeof tokens[number]) => ({
       ...token,
       resetLink: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/reset-password?token=${token.token}`,
       expirado: token.expires < new Date(),
