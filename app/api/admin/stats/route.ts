@@ -57,22 +57,22 @@ export async function GET(request: NextRequest) {
 
     const stats = {
       totalReferenciadores,
-      referenciadoresActivos: referenciadoresTotales.filter(r => r.estatusRegistro === 'ACTIVO').length,
-      referenciadorePendientes: referenciadoresTotales.filter(r => r.estatusRegistro === 'PENDIENTE').length,
+      referenciadoresActivos: referenciadoresTotales.filter((r: typeof referenciadoresTotales[number]) => r.estatusRegistro === 'ACTIVO').length,
+      referenciadorePendientes: referenciadoresTotales.filter((r: typeof referenciadoresTotales[number]) => r.estatusRegistro === 'PENDIENTE').length,
       totalSolicitudesCredito: solicitudesCredito.length,
-      creditosAprobados: solicitudesCredito.filter(s => s.estatus === 'APROBADO').length,
-      creditosPendientes: solicitudesCredito.filter(s => s.estatus === 'PENDIENTE').length,
+      creditosAprobados: solicitudesCredito.filter((s: typeof solicitudesCredito[number]) => s.estatus === 'APROBADO').length,
+      creditosPendientes: solicitudesCredito.filter((s: typeof solicitudesCredito[number]) => s.estatus === 'PENDIENTE').length,
       montoTotalCreditos: solicitudesCredito
-        .filter(s => s.estatus === 'APROBADO')
-        .reduce((sum, s) => sum + Number(s.monto), 0),
+        .filter((s: typeof solicitudesCredito[number]) => s.estatus === 'APROBADO')
+        .reduce((sum: number, s: typeof solicitudesCredito[number]) => sum + Number(s.monto), 0),
       totalIncentivos: incentivos
-        .filter(i => i.estado === 'PENDIENTE')
-        .reduce((sum, i) => sum + Number(i.monto), 0),
-      incentivosPendientes: incentivos.filter(i => i.estado === 'PENDIENTE').length,
+        .filter((i: typeof incentivos[number]) => i.estado === 'PENDIENTE')
+        .reduce((sum: number, i: typeof incentivos[number]) => sum + Number(i.monto), 0),
+      incentivosPendientes: incentivos.filter((i: typeof incentivos[number]) => i.estado === 'PENDIENTE').length,
       totalComisiones: comisiones
-        .filter(c => c.estado === 'PENDIENTE')
-        .reduce((sum, c) => sum + Number(c.monto), 0),
-      comisionesPendientes: comisiones.filter(c => c.estado === 'PENDIENTE').length
+        .filter((c: typeof comisiones[number]) => c.estado === 'PENDIENTE')
+        .reduce((sum: number, c: typeof comisiones[number]) => sum + Number(c.monto), 0),
+      comisionesPendientes: comisiones.filter((c: typeof comisiones[number]) => c.estado === 'PENDIENTE').length
     };
 
     return NextResponse.json(stats);
