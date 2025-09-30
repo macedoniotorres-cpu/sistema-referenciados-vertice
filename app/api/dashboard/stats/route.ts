@@ -37,30 +37,30 @@ export async function GET(request: NextRequest) {
     // Calcular estadísticas
     const stats = {
       totalReferidos: referenciador.referidos.length,
-      referidosActivos: referenciador.referidos.filter(r => r.estatusRegistro === 'ACTIVO').length,
+      referidosActivos: referenciador.referidos.filter((r: typeof referenciador.referidos[number]) => r.estatusRegistro === 'ACTIVO').length,
       solicitudesCredito: referenciador.solicitudesCredito.length,
-      creditosAprobados: referenciador.solicitudesCredito.filter(s => s.estatus === 'APROBADO').length,
+      creditosAprobados: referenciador.solicitudesCredito.filter((s: typeof referenciador.solicitudesCredito[number]) => s.estatus === 'APROBADO').length,
       totalIncentivos: referenciador.incentivos
-        .filter(i => i.estado === 'PENDIENTE')
-        .reduce((sum, i) => sum + Number(i.monto), 0),
-      incentivosPendientes: referenciador.incentivos.filter(i => i.estado === 'PENDIENTE').length,
+        .filter((i: typeof referenciador.incentivos[number]) => i.estado === 'PENDIENTE')
+        .reduce((sum: number, i: typeof referenciador.incentivos[number]) => sum + Number(i.monto), 0),
+      incentivosPendientes: referenciador.incentivos.filter((i: typeof referenciador.incentivos[number]) => i.estado === 'PENDIENTE').length,
       totalComisiones: referenciador.comisiones
-        .filter(c => c.estado === 'PENDIENTE')
-        .reduce((sum, c) => sum + Number(c.monto), 0),
-      comisionesPendientes: referenciador.comisiones.filter(c => c.estado === 'PENDIENTE').length,
+        .filter((c: typeof referenciador.comisiones[number]) => c.estado === 'PENDIENTE')
+        .reduce((sum: number, c: typeof referenciador.comisiones[number]) => sum + Number(c.monto), 0),
+      comisionesPendientes: referenciador.comisiones.filter((c: typeof referenciador.comisiones[number]) => c.estado === 'PENDIENTE').length,
       // Ganancias cobradas (PAGADAS)
       incentivosCobrados: referenciador.incentivos
-        .filter(i => i.estado === 'PAGADO')
-        .reduce((sum, i) => sum + Number(i.monto), 0),
+        .filter((i: typeof referenciador.incentivos[number]) => i.estado === 'PAGADO')
+        .reduce((sum: number, i: typeof referenciador.incentivos[number]) => sum + Number(i.monto), 0),
       comisionesCobradas: referenciador.comisiones
-        .filter(c => c.estado === 'PAGADO')
-        .reduce((sum, c) => sum + Number(c.monto), 0),
+        .filter((c: typeof referenciador.comisiones[number]) => c.estado === 'PAGADO')
+        .reduce((sum: number, c: typeof referenciador.comisiones[number]) => sum + Number(c.monto), 0),
       totalGananciasCobradas: referenciador.incentivos
-        .filter(i => i.estado === 'PAGADO')
-        .reduce((sum, i) => sum + Number(i.monto), 0) +
+        .filter((i: typeof referenciador.incentivos[number]) => i.estado === 'PAGADO')
+        .reduce((sum: number, i: typeof referenciador.incentivos[number]) => sum + Number(i.monto), 0) +
         referenciador.comisiones
-        .filter(c => c.estado === 'PAGADO')
-        .reduce((sum, c) => sum + Number(c.monto), 0),
+        .filter((c: typeof referenciador.comisiones[number]) => c.estado === 'PAGADO')
+        .reduce((sum: number, c: typeof referenciador.comisiones[number]) => sum + Number(c.monto), 0),
       codigoReferencia: referenciador.codigo,
       estatusRegistro: referenciador.estatusRegistro,
       estatusCredito: referenciador.estatusCredito
